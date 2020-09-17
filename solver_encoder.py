@@ -41,18 +41,23 @@ class Solver(object):
         self.g_optimizer = torch.optim.Adam(self.G.parameters(), 0.0001)
 
         ## TODO: load checkpoint here
+
+        # this is from make_metadata.py
         #c_checkpoint = torch.load('3000000-BL.ckpt')
         #new_state_dict = OrderedDict()
         #for key, val in c_checkpoint['model_b'].items():
         #    new_key = key[7:]
         #    new_state_dict[new_key] = val
+        #C.load_state_dict(new_state_dict)
 
+        # this is from waveglow
         # model.load_state_dict( checkpoint_dict['model'].state_dict() )
         # self.start_iter = checkpoint_dict['iteration']
         # self.g_optimizer.load_state_dict(checkpoint_dict['optimizer'])
 
-
-        #C.load_state_dict(new_state_dict)
+        # this is from conversion.ipynb
+        #g_checkpoint = torch.load('autovc.ckpt')
+        #G.load_state_dict(g_checkpoint['model'])
 
 
         self.G.to(self.device)

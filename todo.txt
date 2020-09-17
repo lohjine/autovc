@@ -1,23 +1,35 @@
+- actually can run with pretrained model to get a 0-shot baseline
+  - wait this don't even need waveglow..
+  - iirc, just generate noise, can try again
+  - and can try, generate spec to itself, put to waveglow
+
+
 - ensure mel spec input is the same
+  - seems like n_mels = 80, can just use
+  
 
 
 - extract renai circulation voice (might as well do platinum disco, doesnt take that long)
+  - do full song for more data
+  - probably cut to the usual size of x secs, see what we did for illya?
 
 
 - gen mel specs using waveglow
 
 
-- figure out one-hot embedding
+- gen metadata (for training -> train.pkl)
+  - figure out one-hot embedding
   - test
-
-- gen metadata
-
-
 
 
 - train using main.py
  - test using  vocoder.ipynb
 
+
+- rewrite conversion.ipynb to work with other data, because it is doing many-to-many, we want 1-to-1
+  - need to gen metadata.pkl ourselves
+     - ['label',256, (x,80)]
+     - 256->speaker embedding. x,80 -> melspec
 
 
 - figure out how to save and resume training, using the saved checkpoints
