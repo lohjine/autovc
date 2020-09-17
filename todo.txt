@@ -1,0 +1,26 @@
+- ensure mel spec input is the same
+
+
+- extract renai circulation voice (might as well do platinum disco, doesnt take that long)
+
+
+- gen mel specs using waveglow
+
+
+- figure out one-hot embedding
+
+
+- gen metadata
+
+
+
+
+- train using main.py
+ - test using  vocoder.ipynb
+
+
+
+- figure out how to save and resume training, using the saved checkpoints
+  (in hparams - set checkpoint)
+  - hmmm maybe training is fast? 1 million iterations
+  
