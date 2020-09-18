@@ -14,24 +14,27 @@ class Utterances(data.Dataset):
         """Initialize and preprocess the Utterances dataset."""
         self.root_dir = root_dir
         self.len_crop = len_crop
-        self.step = 10
+        self.step = 10000
         
         metaname = os.path.join(self.root_dir, "train.pkl")
         meta = pickle.load(open(metaname, "rb"))
         
-        """Load data using multiprocessing"""
-        manager = Manager()
-        meta = manager.list(meta)
-        dataset = manager.list(len(meta)*[None])  
-        processes = []
-        for i in range(0, len(meta), self.step):
-            p = Process(target=self.load_data, 
-                        args=(meta[i:i+self.step],dataset,i))  
-            p.start()
-            processes.append(p)
-        for p in processes:
-            p.join()
-            
+#        """Load data using multiprocessing"""
+#        manager = Manager()
+#        meta = manager.list(meta)
+#        dataset = manager.list(len(meta)*[None])  
+#        processes = []
+#        for i in range(0, len(meta), self.step):
+#            p = Process(target=self.load_data, 
+#                        args=(meta[i:i+self.step],dataset,i))  
+#            p.start()
+#            processes.append(p)
+#        for p in processes:
+#            p.join()
+        
+        
+        dataset = self.single_thread_load_data(meta)
+        
         self.train_dataset = list(dataset)
         self.num_tokens = len(self.train_dataset)
         
@@ -48,6 +51,17 @@ class Utterances(data.Dataset):
                     uttrs[j] = np.load(os.path.join(self.root_dir, tmp))
             dataset[idx_offset+k] = uttrs
                    
+    def single_thread_load_data(self, meta):
+        dataset = []
+        for k, sbmt in enumerate(meta):    
+            uttrs = len(sbmt)*[None]
+            for j, tmp in enumerate(sbmt):
+                if j < 2:  # fill in speaker id and embedding
+                    uttrs[j] = tmp
+                else: # load the mel-spectrograms
+                    uttrs[j] = np.load(os.path.join(self.root_dir, tmp))
+            dataset.append(uttrs)
+        return dataset
         
     def __getitem__(self, index):
         # pick a random speaker

@@ -4,7 +4,6 @@ import torch.nn.functional as F
 import time
 import datetime
 
-
 class Solver(object):
 
     def __init__(self, vcc_loader, config):
@@ -29,6 +28,10 @@ class Solver(object):
         self.use_cuda = torch.cuda.is_available()
         self.device = torch.device('cuda:0' if self.use_cuda else 'cpu')
         self.log_step = config.log_step
+        self.checkpoint = config.checkpoint
+        self.resume = config.resume
+        self.running_avg_mean = 0
+        self.running_avg_sd = 0
 
         # Build the model and tensorboard.
         self.build_model()
@@ -61,7 +64,12 @@ class Solver(object):
 
 
         self.G.to(self.device)
-
+        
+        if self.resume:
+            g_checkpoint = torch.load(self.resume)
+            self.G.load_state_dict(g_checkpoint['model'])
+            self.g_optimizer.load_state_dict(g_checkpoint['optimizer'])
+            self.start_iter = g_checkpoint['iteration']
 
 
     def reset_grad(self):
@@ -133,6 +141,11 @@ class Solver(object):
             #                                 4. Miscellaneous                                    #
             # =================================================================================== #
 
+            if self.running_avg_mean == 0:
+                self.running_avg_mean = loss['G/loss_cd']
+            else:
+                self.running_avg_mean = self.running_avg_mean + ((loss['G/loss_cd'] - self.running_avg_mean) / 100)
+                
             # Print out training information.
             if (i+1) % self.log_step == 0:
                 et = time.time() - start_time
@@ -140,9 +153,17 @@ class Solver(object):
                 log = "Elapsed [{}], Iteration [{}/{}]".format(et, i+1, self.num_iters)
                 for tag in keys:
                     log += ", {}: {:.4f}".format(tag, loss[tag])
+                    
+                log += f", mvg_avg:{'%.04f'%self.running_avg}+-{}"
+                
                 print(log)
 
 
-
+            # Save checkpoint
+            if i>0 and (i % self.checkpoint) == 0:
+#                model_for_saving.load_state_dict()
+                torch.save({'model': self.G.state_dict(),
+                            'iteration': i,
+                            'optimizer': self.g_optimizer.state_dict()}, f'checkpoint/chkpt_{i}')
 
 

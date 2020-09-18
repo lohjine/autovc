@@ -6,3 +6,6 @@ checkpoint_step001000000_ema.pth
 .ipynb_checkpoints/conversion-checkpoint.ipynb
 .ipynb_checkpoints/vocoder-checkpoint.ipynb
 *.pkl
+*.wav
+*.npy
+checkpoint/chkpt_100

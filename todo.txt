@@ -1,28 +1,38 @@
-- actually can run with pretrained model to get a 0-shot baseline
+- actually can run with pretrained model to get a 0-shot baseline OVER
   - wait this don't even need waveglow..
   - iirc, just generate noise, can try again
-  - and can try, generate spec to itself, put to waveglow
+  - and can try, generate spec to itself, put to waveglow => can't no speaker embed
 
 
-- ensure mel spec input is the same
+- ensure mel spec input is the same DONE
   - seems like n_mels = 80, can just use
-  
 
 
-- extract renai circulation voice (might as well do platinum disco, doesnt take that long)
-  - do full song for more data
-  - probably cut to the usual size of x secs, see what we did for illya?
+- extract renai circulation voice (might as well do platinum disco, doesnt take that long) => ok it does take that long DONE
+  - do full song for more data => renai voice quite fucked up, esp the chorus
+  - probably cut to the usual size of x secs, see what we did for illya? => roughly 2-10 secs
 
 
-- gen mel specs using waveglow
+- gen mel specs using waveglow DONE
 
 
-- gen metadata (for training -> train.pkl)
-  - figure out one-hot embedding
+- gen metadata (for training -> train.pkl) DONE
+  - figure out one-hot embedding 
   - test
 
 
+- outline steps to repeat on colab DONE
+
+
+
+- figure out how to save and resume training, using the saved checkpoints DONE
+  (in hparams - set checkpoint)
+  - hmmm maybe training is fast? 1 million iterations
+  
+
 - train using main.py
+ - wait for it to converge... = 0.0001
+
  - test using  vocoder.ipynb
 
 
@@ -32,7 +42,3 @@
      - 256->speaker embedding. x,80 -> melspec
 
 
-- figure out how to save and resume training, using the saved checkpoints
-  (in hparams - set checkpoint)
-  - hmmm maybe training is fast? 1 million iterations
-  

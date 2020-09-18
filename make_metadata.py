@@ -10,18 +10,20 @@ import torch
 
 ONE_HOT = True
 
-C = D_VECTOR(dim_input=80, dim_cell=768, dim_emb=256).eval().cuda()
-c_checkpoint = torch.load('3000000-BL.ckpt')
-new_state_dict = OrderedDict()
-for key, val in c_checkpoint['model_b'].items():
-    new_key = key[7:]
-    new_state_dict[new_key] = val
-C.load_state_dict(new_state_dict)
-num_uttrs = 10
-len_crop = 128
+if not ONE_HOT:
+    C = D_VECTOR(dim_input=80, dim_cell=768, dim_emb=256).eval().cuda()
+    c_checkpoint = torch.load('3000000-BL.ckpt')
+    new_state_dict = OrderedDict()
+    for key, val in c_checkpoint['model_b'].items():
+        new_key = key[7:]
+        new_state_dict[new_key] = val
+    C.load_state_dict(new_state_dict)
+    num_uttrs = 10
+    len_crop = 128
 
 # Directory containing mel-spectrograms
-rootDir = './spmel'
+rootDir = r'C:\Users\ACTUS\Desktop\pyscripts\waveglow\data\autovc_train'
+#rootDir = './spmel'
 dirName, subdirList, _ = next(os.walk(rootDir))
 print('Found directory: %s' % dirName)
 
@@ -33,16 +35,17 @@ for idx, speaker in enumerate(sorted(subdirList)):
     utterances.append(speaker)
     _, _, fileList = next(os.walk(os.path.join(dirName,speaker)))
 
-    # make speaker embedding
-    assert len(fileList) >= num_uttrs
-    idx_uttrs = np.random.choice(len(fileList), size=num_uttrs, replace=False)
-    embs = []
 
     if ONE_HOT:
-        embs = np.array([0]*len(subdirList))
-        embs[idx] = 1
+        embs = np.array([0]*len(subdirList)) # try a non-256 dim array first
+        embs[idx] = 1.0
+        embs.dtype = 'float32'
         utterances.append(embs)
     else:
+        # make speaker embedding
+        assert len(fileList) >= num_uttrs
+        idx_uttrs = np.random.choice(len(fileList), size=num_uttrs, replace=False)
+        embs = []
         for i in range(num_uttrs):
             tmp = np.load(os.path.join(dirName, speaker, fileList[idx_uttrs[i]]))
             candidates = np.delete(np.arange(len(fileList)), idx_uttrs)
@@ -60,7 +63,7 @@ for idx, speaker in enumerate(sorted(subdirList)):
 
     # create file list
     for fileName in sorted(fileList):
-        utterances.append(os.path.join(speaker,fileName))
+        utterances.append(speaker+'/'+fileName)
     speakers.append(utterances)
 
 with open(os.path.join(rootDir, 'train.pkl'), 'wb') as handle:
