@@ -6,9 +6,10 @@ from math import ceil
 from model_vc import Generator
 import pickle
 import torch
+import torch.nn.functional as F
 
 speaker_emb_dim = 19
-
+lambda_cd = 1
 
 def pad_seq(x, base=32):
     len_out = int(base * ceil(float(x.shape[0])/base))
@@ -45,54 +46,44 @@ musicDir = r'C:\Users\ACTUS\Desktop\pyscripts\autovc\data\autovc_train\\'
 with open(os.path.join(rootDir, 'train.pkl'), 'rb') as handle:
     speakers = pickle.load(handle)
     
-#for idx, i in enumerate(speakers):
-#    print(idx, i[0])
     
-# illya is 10
+errors = []
+
+for speaker in speakers:
     
-dat = ['illya', speakers[10][1], np.load(musicDir+speakers[10][200])]
-metadata.append(dat)
-
-dat = ['cocoa', speakers[4][1], np.load(musicDir+speakers[4][10])]
-metadata.append(dat)
-
-dat = ['karen', speakers[11][1], np.load(musicDir+speakers[11][13])]
-metadata.append(dat)
-
-
-
-
-print('prediction')
-
-spect_vc = []
-
-for sbmt_i in metadata:
-             
-    x_org = sbmt_i[2]
-    x_org, len_pad = pad_seq(x_org)
-    uttr_org = torch.from_numpy(x_org[np.newaxis, :, :]).to(device)
-    emb_org = torch.from_numpy(sbmt_i[1][np.newaxis, :]).to(device)
+    emb_org = torch.from_numpy(speaker[1][np.newaxis, :]).to(device) 
     
-    for sbmt_j in metadata:
-                   
-        emb_trg = torch.from_numpy(sbmt_j[1][np.newaxis, :]).to(device)
+    for sample in speaker[2:]:
+        
+        x_org = np.load(musicDir+sample)
+        x_org, len_pad = pad_seq(x_org)
+    
+        uttr_org = torch.from_numpy(x_org[np.newaxis, :, :]).to(device)
+
+        # no, look at solver_encoder.py to do this part
+        # to calc error
+        
         
         with torch.no_grad():
-            _, x_identic_psnt, _ = G(uttr_org, emb_org, emb_trg)
+            x_identic, x_identic_psnt, code_real = G(uttr_org, emb_org, emb_org)
             
-        if len_pad == 0:
-            uttr_trg = x_identic_psnt[0, 0, :, :].cpu().numpy()
-        else:
-            uttr_trg = x_identic_psnt[0, 0, :-len_pad, :].cpu().numpy()
+        # Identity mapping loss
+        g_loss_id = F.mse_loss(uttr_org, x_identic)
+        g_loss_id_psnt = F.mse_loss(uttr_org, x_identic_psnt)
+
+        # Code semantic loss.
+        code_reconst = G(x_identic_psnt, emb_org, None)
+        g_loss_cd = F.l1_loss(code_real, code_reconst)
+
+#        g_loss = g_loss_id + g_loss_id_psnt + lambda_cd * g_loss_cd
         
-        spect_vc.append( ('{}x{}'.format(sbmt_i[0], sbmt_j[0]), uttr_trg) )
+        errors.append(( speaker[0] , sample , g_loss_cd.item()))
         
-        print('{}x{}'.format(sbmt_i[0], sbmt_j[0]))
         
-        torch.save(torch.Tensor(uttr_trg.T), 'waveglowout/' + '{}x{}'.format(sbmt_i[0], sbmt_j[0]) + '.pt',
-                   _use_new_zipfile_serialization=False)
-        
-with open('results.pkl', 'wb') as handle:
-    pickle.dump(spect_vc, handle)    
     
+errors = sorted(errors, key=lambda x: x[2].item(), reverse=True)
+
+for i in errors[:20]:
+    print(i)
+
 print('complete')
