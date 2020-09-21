@@ -33,10 +33,10 @@ if __name__ == '__main__':
 
     # Model configuration.
     parser.add_argument('--lambda_cd', type=float, default=1, help='weight for hidden code loss')
-    parser.add_argument('--dim_neck', type=int, default=16)
-    parser.add_argument('--dim_emb', type=int, default=17) # set to number of one-hot 
+    parser.add_argument('--dim_neck', type=int, default=32) #16
+    parser.add_argument('--dim_emb', type=int, default=19) # set to number of one-hot 
     parser.add_argument('--dim_pre', type=int, default=512)
-    parser.add_argument('--freq', type=int, default=16)
+    parser.add_argument('--freq', type=int, default=32) #16
     
     # Training configuration.
     parser.add_argument('--data_dir', type=str, default='./autovc_train') #r'C:\Users\ACTUS\Desktop\pyscripts\waveglow\data\autovc_train') # 
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     parser.add_argument('--log_step', type=int, default=500)
     parser.add_argument('--checkpoint', type=int, default=20000)
     
-    parser.add_argument('--resume', type=str, default='')
+    parser.add_argument('--resume', type=str, default='checkpoint/chkpt_340000')
 
     config = parser.parse_args()
     print(config)

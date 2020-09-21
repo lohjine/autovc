@@ -38,8 +38,8 @@ for idx, speaker in enumerate(sorted(subdirList)):
 
     if ONE_HOT:
         embs = np.array([0]*len(subdirList)) # try a non-256 dim array first
-        embs[idx] = 1.0
         embs.dtype = 'float32'
+        embs[idx] = 1.0
         utterances.append(embs)
     else:
         # make speaker embedding

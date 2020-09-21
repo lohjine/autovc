@@ -10,7 +10,6 @@ import torch
 speaker_emb_dim = 19
 
 
-
 def pad_seq(x, base=32):
     len_out = int(base * ceil(float(x.shape[0])/base))
     len_pad = len_out - x.shape[0]

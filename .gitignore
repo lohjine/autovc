@@ -8,4 +8,5 @@ checkpoint_step001000000_ema.pth
 *.pkl
 *.wav
 *.npy
-checkpoint/chkpt_100
+checkpoint/*
+*.pkl

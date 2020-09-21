@@ -91,7 +91,7 @@ class Solver(object):
         # Start training.
         print('Start training...')
         start_time = time.time()
-        for i in range(self.start_iter, self.num_iters):
+        for i in range(self.start_iter, self.num_iters+1):
 
             # =================================================================================== #
             #                             1. Preprocess input data                                #
@@ -154,9 +154,12 @@ class Solver(object):
                 for tag in keys:
                     log += ", {}: {:.4f}".format(tag, loss[tag])
                     
-                log += f", mvg_avg:{'%.04f'%self.running_avg}+-{}"
+                log += f", mvg_avg: {'%.04f'%self.running_avg_mean}"
                 
                 print(log)
+                
+                with open('trainlog.txt','a') as f:
+                    f.write(log + '\n')
 
 
             # Save checkpoint
