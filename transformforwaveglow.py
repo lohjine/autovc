@@ -24,7 +24,7 @@ G = Generator(32,speaker_emb_dim,512,32).eval().to(device) # 2nd number is  oneh
 
 print('loading model')
 
-g_checkpoint = torch.load('checkpoint/v1/chkpt_340000' ,map_location='cuda:0')
+g_checkpoint = torch.load('checkpoint/v1/chkpt_600000' ,map_location='cuda:0')
 G.load_state_dict(g_checkpoint['model'])
 
 
