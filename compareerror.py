@@ -73,17 +73,22 @@ for speaker in speakers:
 
         # Code semantic loss.
         code_reconst = G(x_identic_psnt, emb_org, None)
-        g_loss_cd = F.l1_loss(code_real, code_reconst)
+        g_loss_cd = F.l1_loss(code_real , code_reconst)
 
 #        g_loss = g_loss_id + g_loss_id_psnt + lambda_cd * g_loss_cd
 
-        errors.append(( speaker[0] , sample , g_loss_cd.item()))
+        errors.append(( speaker[0] , sample , g_loss_id.item(), g_loss_id_psnt.item(), g_loss_cd.item(), g_loss_id.item() + g_loss_id_psnt.item() + g_loss_cd.item()))
 
 
 
-errors = sorted(errors, key=lambda x: x[2].item(), reverse=True)
+errors = sorted(errors, key=lambda x: x[4], reverse=True)
 
 for i in errors[:20]:
     print(i)
 
 print('complete')
+
+
+## g_loss_id is error from pre-postnet, L_recon0
+## g_loss_id_psnt is error after postnet, L_recon
+## g_loss_cd is content error, x_1->1 -> C_1 difference.
