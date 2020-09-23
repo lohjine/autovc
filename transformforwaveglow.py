@@ -8,7 +8,7 @@ import pickle
 import torch
 
 speaker_emb_dim = 19
-
+base = 32 # this is set to the last number i think
 
 
 def pad_seq(x, base=32):
@@ -70,7 +70,7 @@ spect_vc = []
 for sbmt_i in metadata:
              
     x_org = sbmt_i[2]
-    x_org, len_pad = pad_seq(x_org)
+    x_org, len_pad = pad_seq(x_org, base=base)
     uttr_org = torch.from_numpy(x_org[np.newaxis, :, :]).to(device)
     emb_org = torch.from_numpy(sbmt_i[1][np.newaxis, :]).to(device)
     

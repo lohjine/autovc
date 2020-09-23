@@ -7,6 +7,7 @@ from model_vc import Generator
 import pickle
 import torch
 import torch.nn.functional as F
+from tqdm import tqdm
 
 speaker_emb_dim = 19
 lambda_cd = 1
@@ -25,17 +26,17 @@ G = Generator(64,speaker_emb_dim,512,16).eval().to(device) # 2nd number is  oneh
 
 print('loading model')
 
-g_checkpoint = torch.load('checkpoint/chkpt_340000' ,map_location='cuda:0')
+g_checkpoint = torch.load('checkpoint/v2/chkpt_300000' ,map_location='cuda:0')
 G.load_state_dict(g_checkpoint['model'])
 
 
 
 
-#rootDir = r'C:\Users\ACTUS\Desktop\pyscripts\autovc\data\autovc_train'
-rootDir = r'autovc_train'
+rootDir = r'C:\Users\ACTUS\Desktop\pyscripts\autovc\data\autovc_train'
+#rootDir = r'autovc_train'
 
-#musicDir = r'C:\Users\ACTUS\Desktop\pyscripts\autovc\data\autovc_train\\'
-musicDir = 'autovc_train/'
+musicDir = r'C:\Users\ACTUS\Desktop\pyscripts\autovc\data\autovc_train\\'
+#musicDir = 'autovc_train/'
 
 with open(os.path.join(rootDir, 'train.pkl'), 'rb') as handle:
     speakers = pickle.load(handle)
@@ -43,12 +44,17 @@ with open(os.path.join(rootDir, 'train.pkl'), 'rb') as handle:
 
 content = []
 
-for idx, speaker in enumerate(speakers):
+for idx, speaker in tqdm(enumerate(speakers), total = len(speakers)):
 
     emb_org = torch.from_numpy(speaker[1][np.newaxis, :]).to(device)
 
     for sample in speaker[2:]:
 
+        # use data_loader code to get all same size, get like 1000 samples for each??
+        ## probably dont want random though
+        ## scroll through samples, for each sample get until must pad then next
+        
+        
         x_org = np.load(musicDir+sample)
         x_org, len_pad = pad_seq(x_org)
 
@@ -61,13 +67,15 @@ for idx, speaker in enumerate(speakers):
             _, _, code_real = G(uttr_org, emb_org, emb_org)
 
         ## dump code_real into savefile for classification error training/testing
-        content.append(np.concatenate(code_real.toarray(), idx)) # and append class
-
-        raise # see what code_real looks like, flatten it?
+        content.append(np.concatenate((np.squeeze(code_real.cpu().numpy()), [idx]))) # and append class
 
         # if array dim not huge, can just use RF
 
 ## === split here to see what code_real / content looks like
+        
+# content are all different length.
+# 1. pad??
+# 2. see how training does it..
 
 from sklearn.model_selection import StratifiedKFold
 from sklearn.ensemble import RandomForestClassifier

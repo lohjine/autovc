@@ -10,3 +10,4 @@ checkpoint_step001000000_ema.pth
 *.npy
 checkpoint/*
 *.pkl
+3000000-BL.ckpt
