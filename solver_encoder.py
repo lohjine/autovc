@@ -31,6 +31,8 @@ class Solver(object):
         self.checkpoint = config.checkpoint
         self.resume = config.resume
         self.running_avg_mean = 0
+        self.running_avg_mean_1 = 0
+        self.running_avg_mean_2 = 0
         self.running_avg_sd = 0
 
         # Build the model and tensorboard.
@@ -143,6 +145,16 @@ class Solver(object):
             #                                 4. Miscellaneous                                    #
             # =================================================================================== #
 
+            if self.running_avg_mean_1 == 0:
+                self.running_avg_mean_1 = loss['G/loss_id']
+            else:
+                self.running_avg_mean_1 = self.running_avg_mean_1 + ((loss['G/loss_id'] - self.running_avg_mean_1) / 100)
+
+            if self.running_avg_mean_2 == 0:
+                self.running_avg_mean_2 = loss['G/loss_id_psnt']
+            else:
+                self.running_avg_mean_2 = self.running_avg_mean_2 + ((loss['G/loss_id_psnt'] - self.running_avg_mean_2) / 100)
+
             if self.running_avg_mean == 0:
                 self.running_avg_mean = loss['G/loss_cd']
             else:
@@ -152,11 +164,11 @@ class Solver(object):
             if (i+1) % self.log_step == 0:
                 et = time.time() - start_time
                 et = str(datetime.timedelta(seconds=et))[:-7]
-                log = "Elapsed [{}], Iteration [{}/{}]".format(et, i+1, self.num_iters)
+                log = "Elapsed [{}], Iter [{}/{}]".format(et, i+1, self.num_iters)
                 for tag in keys:
                     log += ", {}: {:.4f}".format(tag, loss[tag])
 
-                log += f", mvg_avg: {'%.04f'%self.running_avg_mean}"
+                log += f", mvg_avg: {'%.04f'%self.running_avg_mean_1}/{'%.04f'%self.running_avg_mean_2}/{'%.04f'%self.running_avg_mean}"
 
                 print(log)
 
