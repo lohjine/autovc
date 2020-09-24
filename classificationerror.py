@@ -11,6 +11,7 @@ from tqdm import tqdm
 
 speaker_emb_dim = 19
 lambda_cd = 1
+len_crop = 128
 
 def pad_seq(x, base=32):
     len_out = int(base * ceil(float(x.shape[0])/base))
@@ -33,9 +34,11 @@ G.load_state_dict(g_checkpoint['model'])
 
 
 rootDir = r'C:\Users\ACTUS\Desktop\pyscripts\autovc\data\autovc_train'
+rootDir = r'spmel\\'
 #rootDir = r'autovc_train'
 
 musicDir = r'C:\Users\ACTUS\Desktop\pyscripts\autovc\data\autovc_train\\'
+musicDir = r'spmel\\'
 #musicDir = 'autovc_train/'
 
 with open(os.path.join(rootDir, 'train.pkl'), 'rb') as handle:
@@ -53,10 +56,23 @@ for idx, speaker in tqdm(enumerate(speakers), total = len(speakers)):
         # use data_loader code to get all same size, get like 1000 samples for each??
         ## probably dont want random though
         ## scroll through samples, for each sample get until must pad then next
-        
-        
+
+        # takes a ~2 sec sample for each file
         x_org = np.load(musicDir+sample)
-        x_org, len_pad = pad_seq(x_org)
+        tmp = x_org
+#        x_org, len_pad = pad_seq(x_org)
+
+        if tmp.shape[0] < len_crop:
+            len_pad = len_crop - tmp.shape[0]
+            x_org = np.pad(tmp, ((0,len_pad),(0,0)), 'constant')
+        elif tmp.shape[0] > len_crop:
+            left = np.random.randint(tmp.shape[0]-len_crop)
+            x_org = tmp[left:left+len_crop, :]
+        else:
+            x_org = tmp
+
+        # should be enough samples, else then work on getting more
+
 
         uttr_org = torch.from_numpy(x_org[np.newaxis, :, :]).to(device)
 
@@ -72,10 +88,16 @@ for idx, speaker in tqdm(enumerate(speakers), total = len(speakers)):
         # if array dim not huge, can just use RF
 
 ## === split here to see what code_real / content looks like
-        
+
 # content are all different length.
 # 1. pad??
 # 2. see how training does it..
+
+content = np.array(content)
+
+np.save('classificationerror_content.npy', content)
+
+content = np.load('classificationerror_content.npy')
 
 from sklearn.model_selection import StratifiedKFold
 from sklearn.ensemble import RandomForestClassifier

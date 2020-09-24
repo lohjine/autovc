@@ -64,7 +64,7 @@ class Solver(object):
 
 
         self.G.to(self.device)
-        
+
         if self.resume:
             g_checkpoint = torch.load(self.resume)
             self.G.load_state_dict(g_checkpoint['model'])
@@ -115,6 +115,8 @@ class Solver(object):
 
             self.G = self.G.train()
 
+            x_real = x_real.unsqueeze(1)
+
             # Identity mapping loss
             x_identic, x_identic_psnt, code_real = self.G(x_real, emb_org, emb_org)
             g_loss_id = F.mse_loss(x_real, x_identic)
@@ -145,7 +147,7 @@ class Solver(object):
                 self.running_avg_mean = loss['G/loss_cd']
             else:
                 self.running_avg_mean = self.running_avg_mean + ((loss['G/loss_cd'] - self.running_avg_mean) / 100)
-                
+
             # Print out training information.
             if (i+1) % self.log_step == 0:
                 et = time.time() - start_time
@@ -153,11 +155,11 @@ class Solver(object):
                 log = "Elapsed [{}], Iteration [{}/{}]".format(et, i+1, self.num_iters)
                 for tag in keys:
                     log += ", {}: {:.4f}".format(tag, loss[tag])
-                    
+
                 log += f", mvg_avg: {'%.04f'%self.running_avg_mean}"
-                
+
                 print(log)
-                
+
                 with open('trainlog.txt','a') as f:
                     f.write(log + '\n')
 

@@ -43,13 +43,14 @@ if __name__ == '__main__':
 #    parser.add_argument('--data_dir', type=str, default=r'./spmel')
     parser.add_argument('--batch_size', type=int, default=2, help='mini-batch size')
     parser.add_argument('--num_iters', type=int, default=1000000, help='number of total iterations')
+    # 6 seconds ~= 376, 11 secs ~=708, hence 128 ~= 2secs
     parser.add_argument('--len_crop', type=int, default=128, help='dataloader output sequence length')
 
     # Miscellaneous.
     parser.add_argument('--log_step', type=int, default=500)
     parser.add_argument('--checkpoint', type=int, default=20000)
 
-    parser.add_argument('--resume', type=str, default='checkpoint/chkpt_140000')
+    parser.add_argument('--resume', type=str, default='checkpoint/chkpt_480000')
 
     config = parser.parse_args()
     print(config)
