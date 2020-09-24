@@ -117,10 +117,10 @@ class Solver(object):
 
             self.G = self.G.train()
 
-            x_real = x_real.unsqueeze(1)
 
             # Identity mapping loss
             x_identic, x_identic_psnt, code_real = self.G(x_real, emb_org, emb_org)
+            x_real = x_real.unsqueeze(1)
             g_loss_id = F.mse_loss(x_real, x_identic)
             g_loss_id_psnt = F.mse_loss(x_real, x_identic_psnt)
 

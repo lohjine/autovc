@@ -50,7 +50,7 @@ if __name__ == '__main__':
     parser.add_argument('--log_step', type=int, default=500)
     parser.add_argument('--checkpoint', type=int, default=20000)
 
-    parser.add_argument('--resume', type=str, default='checkpoint/chkpt_480000')
+    parser.add_argument('--resume', type=str, default='checkpoint/chkpt_600000')
 
     config = parser.parse_args()
     print(config)

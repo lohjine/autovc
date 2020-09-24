@@ -122,8 +122,8 @@ for train_index, test_index in skf.split(content[:,:-1], content[:,-1]):
     clf = RandomForestClassifier(n_estimators=300, verbose = 0, n_jobs=3)
     clf.fit(x_train, y_train)
 
-    train_scores.append(f1_score(y_train, clf.predict(x_train),multi_class='ovo'))
-    test_scores.append(f1_score(y_test, clf.predict(x_test),multi_class='ovo'))
+    train_scores.append(f1_score(y_train, clf.predict(x_train),average='weighted'))
+    test_scores.append(f1_score(y_test, clf.predict(x_test),average='weighted'))
 
     train_acc.append(accuracy_score(y_train, clf.predict(x_train)))
     test_acc.append(accuracy_score(y_test, clf.predict(x_test)))
