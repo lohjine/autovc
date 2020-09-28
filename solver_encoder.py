@@ -68,7 +68,7 @@ class Solver(object):
         self.G.to(self.device)
 
         if self.resume:
-            g_checkpoint = torch.load(self.resume)
+            g_checkpoint = torch.load(self.resume ) # ,map_location='cuda:0'
             self.G.load_state_dict(g_checkpoint['model'])
             self.g_optimizer.load_state_dict(g_checkpoint['optimizer'])
             self.start_iter = g_checkpoint['iteration']
@@ -120,8 +120,11 @@ class Solver(object):
 
             # Identity mapping loss
             x_identic, x_identic_psnt, code_real = self.G(x_real, emb_org, emb_org)
-            print(x_real.shape, x_identic.shape, x_identic_psnt.shape, code_real.shape)
-            #x_real = x_real.unsqueeze(1)
+#            print(x_real.shape, x_identic.shape, x_identic_psnt.shape, code_real.shape)
+            
+            # torch.Size([2, 128, 80]) torch.Size([2, 1, 128, 80]) torch.Size([2, 1, 128, 80]) torch.Size([2, 256])
+            
+            x_real = x_real.unsqueeze(1)
             g_loss_id = F.mse_loss(x_real, x_identic)
             g_loss_id_psnt = F.mse_loss(x_real, x_identic_psnt)
 

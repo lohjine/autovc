@@ -3,6 +3,7 @@ import torch
 import numpy as np
 import pickle 
 import os    
+from tqdm import tqdm
        
 from multiprocessing import Process, Manager   
 
@@ -53,9 +54,10 @@ class Utterances(data.Dataset):
                    
     def single_thread_load_data(self, meta):
         dataset = []
-        for k, sbmt in enumerate(meta):    
+        for k, sbmt in tqdm(enumerate(meta), total=len(meta)):    
             uttrs = len(sbmt)*[None]
             for j, tmp in enumerate(sbmt):
+#            for j, tmp in tqdm(enumerate(sbmt),total=len(sbmt)):
                 if j < 2:  # fill in speaker id and embedding
                     uttrs[j] = tmp
                 else: # load the mel-spectrograms

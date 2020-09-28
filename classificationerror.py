@@ -27,18 +27,18 @@ G = Generator(64,speaker_emb_dim,512,16).eval().to(device) # 2nd number is  oneh
 
 print('loading model')
 
-g_checkpoint = torch.load('checkpoint/v2/chkpt_300000' ,map_location='cuda:0')
+g_checkpoint = torch.load('checkpoint/v2/chkpt_800000' ,map_location='cuda:0')
 G.load_state_dict(g_checkpoint['model'])
 
 
 
 
 rootDir = r'C:\Users\ACTUS\Desktop\pyscripts\autovc\data\autovc_train'
-rootDir = r'spmel\\'
+#rootDir = r'spmel\\'
 #rootDir = r'autovc_train'
 
 musicDir = r'C:\Users\ACTUS\Desktop\pyscripts\autovc\data\autovc_train\\'
-musicDir = r'spmel\\'
+#musicDir = r'spmel\\'
 #musicDir = 'autovc_train/'
 
 with open(os.path.join(rootDir, 'train.pkl'), 'rb') as handle:
@@ -46,6 +46,8 @@ with open(os.path.join(rootDir, 'train.pkl'), 'rb') as handle:
 
 
 content = []
+
+np.random.seed(seed = 1234)
 
 for idx, speaker in tqdm(enumerate(speakers), total = len(speakers)):
 
@@ -95,9 +97,9 @@ for idx, speaker in tqdm(enumerate(speakers), total = len(speakers)):
 
 content = np.array(content)
 
-np.save('classificationerror_content.npy', content)
+np.save('classificationerror_content_v2.5.npy', content)
 
-content = np.load('classificationerror_content.npy')
+#content = np.load('classificationerror_content.npy')
 
 from sklearn.model_selection import StratifiedKFold
 from sklearn.ensemble import RandomForestClassifier
@@ -119,7 +121,7 @@ for train_index, test_index in skf.split(content[:,:-1], content[:,-1]):
     x_train, x_test = content[train_index,:-1], content[test_index,:-1]
     y_train, y_test = content[train_index,-1], content[test_index,-1]
 
-    clf = RandomForestClassifier(n_estimators=300, verbose = 0, n_jobs=3)
+    clf = RandomForestClassifier(n_estimators=300, verbose = 1, n_jobs=3)
     clf.fit(x_train, y_train)
 
     train_scores.append(f1_score(y_train, clf.predict(x_train),average='weighted'))
