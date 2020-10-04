@@ -7,9 +7,6 @@ from model_vc import Generator
 import pickle
 import torch
 
-speaker_emb_dim = 19
-base = 32 # this is set to the last number i think
-
 
 def pad_seq(x, base=32):
     len_out = int(base * ceil(float(x.shape[0])/base))
@@ -18,13 +15,18 @@ def pad_seq(x, base=32):
     return np.pad(x, ((0,len_pad),(0,0)), 'constant'), len_pad
 
 device = 'cuda:0'
+
+
+speaker_emb_dim = 19
+base = 16 # this is set to the last number i think
+
 G = Generator(32,speaker_emb_dim,512,16).eval().to(device) # 2nd number is  onehot
 
 #g_checkpoint = torch.load('autovc.ckpt' ,map_location='cuda:0')
 
 print('loading model')
 
-g_checkpoint = torch.load('checkpoint/v5/chkpt_300000' ,map_location='cuda:0')
+g_checkpoint = torch.load('checkpoint/v4/chkpt_400000' ,map_location='cuda:0')
 G.load_state_dict(g_checkpoint['model'])
 
 
@@ -109,28 +111,35 @@ styles = []
 dat = ['illya', speakers[10][1]]
 styles.append(dat)
 
-dat = ['karen', speakers[11][1]]
-styles.append(dat)
+#dat = ['karen', speakers[11][1]]
+#styles.append(dat)
 
 targets = []    
 
 dat = ['illya', speakers[10][1], np.load(musicDir+speakers[10][200])]
 targets.append(dat)
 
-for i in range(10,14):
-    dat = [f'renai_{i}', speakers[16][1], np.load(musicDir+speakers[16][i])]
-    targets.append(dat)
-    
-for i in range(3,7):
-    dat = [f'platinum_{i}', speakers[14][1], np.load(musicDir+speakers[14][i])]
-    targets.append(dat)
+#for i in range(10,14):
+#    dat = [f'renai_{i}', speakers[16][1], np.load(musicDir+speakers[16][i])]
+#    targets.append(dat)
+#    
+#for i in range(3,7):
+#    dat = [f'platinum_{i}', speakers[14][1], np.load(musicDir+speakers[14][i])]
+#    targets.append(dat)
     
 dat = ['renaifull', speakers[16][1], np.load(os.path.join(musicDir,'full','renai.wav.npy'))]
 targets.append(dat)
     
-dat = ['platfull', speakers[14][1], np.load(os.path.join(musicDir,'platinum','4.wav.npy'))]
-targets.append(dat)
+#dat = ['platfull', speakers[14][1], np.load(os.path.join(musicDir,'full','platdisco.wav.npy'))]
+#targets.append(dat)
 
+
+### PRODD??
+
+#for i in range(2,20):
+#    dat = [f'renai_{os.path.split(speakers[16][i])[-1]}', speakers[16][1], np.load(musicDir+speakers[16][i])]
+#    targets.append(dat)
+    
 
 for target in targets:
     
