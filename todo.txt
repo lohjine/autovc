@@ -42,3 +42,15 @@
      - 256->speaker embedding. x,80 -> melspec
 
 
+==== serving
+
+max input time -> probably set to 15 seconds and max size check too.
+upload a wav file or mp3 then ffmpeg it? -> wav probably fucked up, should just convert it myself. allow mp3/ogg
+cpu speed concerns -> probably want a queue, force single thread or server will die
+recompress output file using ffmpeg so we can store more, also recompress input file.
+
+max queue size of 50, rate limit ip probs 1/minute.
+
+serve both side by side on frontpage, all public, with queue stats.
+
+
